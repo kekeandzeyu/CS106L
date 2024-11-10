@@ -26,16 +26,9 @@ const std::string COURSES_NOT_OFFERED_PATH = "student_output/courses_not_offered
  */
 struct Course {
     std::string title;
-    std::string number_of_units;
+    std::string number_of_units; // Take a careful look at the csv file!
     std::string quarter;
 };
-
-/**
- * (STUDENT TODO) Look at how the main function (at the bottom of this file)
- * calls `parse_csv`, `write_courses_offered`, and `write_courses_not_offered`.
- * Modify the signatures of these functions so that they work as intended, and then delete this
- * comment!
- */
 
 /**
  * Note:
@@ -73,15 +66,19 @@ void parse_csv(const std::string& filename, std::vector<Course>& courses) {
         if (fields.size() == 3) {
             Course course;
 
-            // Fill in the course struct with the fields
+            /* Fill in the course struct with the fields */ 
             course.title = fields[0];
             course.number_of_units = fields[1];
-            std::string quarter_org = fields[2];
-            if (quarter_org[0] == 'n') {
-                course.quarter = "null";
-            } else {
-                course.quarter = quarter_org;
-            }
+            course.quarter = fields[2];
+
+            // If you change end of line sequence from LF ('\n') to CRLF ('\r\n') in the csv file,
+            // you need to remove the redundant character!
+            // std::string quarter = fields[2];
+            // if (quarter.at(0) == 'n') {
+            //     course.quarter = "null";
+            // } else {
+            //     course.quarter = quarter;
+            // }
             courses.push_back(course);
         }
     }
@@ -116,7 +113,7 @@ void write_courses_offered(std::vector<Course>& all_courses) {
     output_file << "Title,Number of Units,Quarter\n"; // Header row
     std::vector<Course> offered_courses;
 
-    // Write the courses that are offered to the file
+    /* Write the courses that are offered to the file */ 
     for (const auto& course : all_courses) {
         if (course.quarter != "null") {
             output_file << course.title << "," << course.number_of_units << "," << course.quarter << "\n";
@@ -124,7 +121,7 @@ void write_courses_offered(std::vector<Course>& all_courses) {
         }
     }
 
-    // Delete the courses that are offered 
+    /* Delete the courses that are offered */ 
     for (const auto& course : offered_courses) {
         delete_elem_from_vector(all_courses, course);
     }
@@ -154,7 +151,7 @@ void write_courses_not_offered(std::vector<Course> unlisted_courses) {
 
     output_file << "Title,Number of Units,Quarter\n"; // Header row
 
-    // Write the courses that are not offered to the file
+    /* Write the courses that are not offered to the file */ 
     for (const auto& course : unlisted_courses) {
         output_file << course.title << "," << course.number_of_units << "," << course.quarter << "\n";
     }
@@ -170,15 +167,9 @@ int main() {
     parse_csv("courses.csv", courses);
 
     /* Uncomment for debugging... */
-    print_courses(courses);
-
-    for (const auto& course : courses) {
-        std::cout << course.quarter.length() << std::endl;
-    }
+    // print_courses(courses);
 
     write_courses_offered(courses);
-
-    print_courses(courses);
     
     write_courses_not_offered(courses);
 
