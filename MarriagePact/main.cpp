@@ -13,10 +13,12 @@
 #include <set>
 #include <string>
 #include <unordered_set>
+#include <random>
+#include <algorithm>
 
 #include "utils.h"
 
-std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
+std::string kYourName = "Zeyu Li"; 
 
 /**
  * Takes in a file name and returns a set containing all of the applicant names as a set.
@@ -30,7 +32,40 @@ std::string kYourName = "STUDENT TODO"; // Don't forget to change this!
  * to also change the corresponding functions in `utils.h`.
  */
 std::set<std::string> get_applicants(std::string filename) {
-  // STUDENT TODO: Implement this function.
+    std::ifstream file(filename);
+    std::set<std::string> applicants;
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file " << filename << std::endl;
+        return applicants;
+    }
+
+    /* Get applicants' names line by line */
+    std::string name;
+    while (std::getline(file, name)) {
+        applicants.insert(name);
+    }
+
+    return applicants;
+}
+
+/**
+ * Helper function to check if two strings have the same initials.
+ * 
+ * @param name1 The first name to compare.
+ * @param name2 The second name to compare.
+ * @return      True if the two names have the same initials, false otherwise.
+ */
+bool same_initials(const std::string& name1, const std::string& name2) {
+    size_t name1_space = name1.find(' ');
+    size_t name2_space = name2.find(' ');
+
+    /* Handle cases where there is only a first name, no name, etc. */
+    if (name1_space == std::string::npos || name2_space == std::string::npos) {
+        return false;
+    }
+
+    return name1[0] == name2[0] && name1[name1_space + 1] == name2[name2_space + 1];
 }
 
 /**
@@ -42,7 +77,23 @@ std::set<std::string> get_applicants(std::string filename) {
  * @return          A queue containing pointers to each matching name.
  */
 std::queue<const std::string*> find_matches(std::string name, std::set<std::string>& students) {
-  // STUDENT TODO: Implement this function.
+    std::queue<const std::string*> matches;
+
+    for (const std::string& student : students) {
+        if (same_initials(name, student)) {
+            /* Push the address of the student */
+            matches.push(&student);
+        }
+    }
+
+    // Alternate Implementation Using Iterators, cbegin & cend for read only
+    // for (auto student = students.cbegin(); student != students.cend(); ++student) {
+    //     if (same_initials(name, *student)) {
+    //         matches.push(&(*student));
+    //     }
+    // }
+
+    return matches;
 }
 
 /**
@@ -56,7 +107,38 @@ std::queue<const std::string*> find_matches(std::string name, std::set<std::stri
  *                Will return "NO MATCHES FOUND." if `matches` is empty.
  */
 std::string get_match(std::queue<const std::string*>& matches) {
-  // STUDENT TODO: Implement this function.
+    if (matches.empty()) {
+        return "NO STUDENT FOUND.";
+    }
+
+    /* Random Selection (using std::shuffle for better randomness) */
+    std::vector<const std::string*> match_vec;
+    while (!matches.empty()) {
+        match_vec.push_back(matches.front());
+        matches.pop();
+    }
+
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(match_vec.begin(), match_vec.end(), g);
+
+    return *match_vec[0];
+
+    /* Alternate Implementation */
+    // const std::string* longest_match = nullptr;
+    // size_t max_length = 0;
+    // 
+    // while (!matches.empty()) {
+    //     const std::string* current_match = matches.front();
+    //     matches.pop();
+    // 
+    //     if (current_match->length() > max_length) {
+    //         max_length = current_match->length();
+    //         longest_match = current_match;
+    //     }
+    // }
+    // 
+    // return (longest_match) ? *longest_match: "NO MATCHES FOUND."; // Return longest or default message
 }
 
 /* #### Please don't modify this call to the autograder! #### */

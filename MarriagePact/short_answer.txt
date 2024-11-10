@@ -1,11 +1,19 @@
-Before submitting this file, make sure that there are no more TODO
-placeholders remaining in the file (and remove this comment too).
-
 Marriage Pact
 -------------
 
 Q1. It is your choice to use either an ordered or unordered set. In a few sentences, what are some of the tradeoffs between the two? Additionally, please give an example (that has not been shown in lecture) of a valid hash function that could be used to hash student names for an unordered set.
-A1. TODO
+A1. std::set provides logarithmic time complexity (O(log n)) for insertion, deletion, and search operations, and elements are stored in a sorted order. However, maintaining the sorted order incurs a slightly higher overhead. std::unordered_set offers average constant time complexity (O(1)) for insertion, deletion, and search. Elements are not stored in any particular order.
+```C++
+struct StudentNameHash {
+    std::size_t operator()(const std::string& name) const {
+        std::size_t hash = 0;
+        for (char c : name) {
+            hash = hash * 31 + std::tolower(c); // Case-insensitive hashing
+        }
+        return hash;
+    }
+};
+```
 
 Q2. Note that we are saving pointers to names in the queue, not names themselves. Why might this be desired in this problem? What happens if the original set where the names are stored goes out of scope and the pointers are referenced?
-A2. TODO
+A2. Copying strings can be expensive, especially if the strings are long. The pointers in the queue will become dangling pointers and oint to invalid memory, causing undefined behavior.
